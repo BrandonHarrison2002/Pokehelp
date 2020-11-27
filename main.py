@@ -7,8 +7,11 @@ from pynput.keyboard import Key, Controller
 import pyautogui
 
 
+move = False
+fight = True
+killlist = ['oddish', 'gloom', 'natu', 'duduo', 'dodrio', 'pidgeotto']
+catchlist = ["riolu", "hippopotas"]
 
-catchlist = ["gible"]
 
 class Cord:
     def __init__(self, x=0, y=0, offx=100, offy=100):
@@ -33,46 +36,68 @@ class Process:
         for pokemon in catchlist:
             if txt.lower().find(pokemon) > -1:
                 self.lastpokemon = pokemon
-                return True
+                return 1
+        for pokemon in killlist:
+            if txt.lower().find(pokemon) > -1:
+                self.lastpokemon = pokemon
+                return 2
+        return 0
     
+    def found(self):
+        print('Found')
+        playsound('Found.wav')
+
     def search(self, greyImg):
         txt = pytesseract.image_to_string(greyImg)
         if txt == None or len(txt) <= 1:
-            print('Moving')
-            if self.left:
-                self.left = False
-                self.keyboard.press('a')
-                self.keyboard.release('a')
-            else:
-                self.left = True
-                self.keyboard.press('d')
-                self.keyboard.release('d')
+            if move:
+                print('Moving')
+                if self.left:
+                    self.left = False
+                    self.keyboard.press('a')
+                    self.keyboard.release('a')
+                else:
+                    self.left = True
+                    self.keyboard.press('d')
+                    self.keyboard.release('d')
         else:
             print('Escaping')
             self.keyboard.press('4')
             self.keyboard.release('4')
     
+    def fight(self, greyImg):
+        txt = pytesseract.image_to_string(greyImg)
+        self.keyboard.press('1')
+        self.keyboard.release('1')
+        # if txt.lower().find('choose attack') > -1:
+        #     print('waiting')
+        # else:
+        #     self.keyboard.press('1')
+        #     self.keyboard.release('1')
+        print('Fighting')
+
 
 
 def main():
     process = Process()
     while(True):
         battle = Cord(760,415,1030,600)
-        # Wild = Cord(1195,433,210,40)
-        wild = Cord(pyautogui.size()[0]/2.1422594142259412, pyautogui.size()[1]/3.325635103926097, pyautogui.size()[0]/12.19047619047619, pyautogui.size()[1]/36.0)
+        wild = Cord(1195,433,210,40)
+        chooseAttack = Cord(1555,780,200,30)
 
         img = wild.grab()
+        atk = chooseAttack.grab()
         
         img = np.array(img)
+        atk = np.array(atk)
         cv2.imshow('window', img)
         
-        if process.processImg(img):  
-            print('Found')
-            playsound('Found.wav')
+        if process.processImg(img) == 1:  
+            process.found()
+        elif process.processImg(img) == 2 and fight:
+            process.fight(atk)
         else:
             process.search(img)
-
-
 
         if cv2.waitKey(25) & 0xFF == ord('q'):  
             cv2.destroyAllWindows()
