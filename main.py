@@ -58,9 +58,10 @@ def main():
     process = Process()
     while(True):
         battle = Cord(760,415,1030,600)
-        Wild = Cord(pyautogui.size()[0]/2.11221122112,pyautogui.size()[0]/3.46987951807,175,50)
+        # Wild = Cord(1195,433,210,40)
+        wild = Cord(pyautogui.size()[0]/2.1422594142259412, pyautogui.size()[1]/3.325635103926097, pyautogui.size()[0]/12.19047619047619, pyautogui.size()[1]/36.0)
 
-        img = Wild.grab()
+        img = wild.grab()
         
         img = np.array(img)
         cv2.imshow('window', img)
